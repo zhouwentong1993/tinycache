@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -28,7 +29,7 @@ public class LRUV3PerfTest {
 
     private static final BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>();
 
-    private static final LRUV3<String, String> lru = new LRUV3<>(TOTAL_TEST_COUNT * 2);
+    private static final LRUV3<String, String> lru = new LRUV3<>(TOTAL_TEST_COUNT * 2, "v2");
 
     @Test
     public void testProduceThenConsume() throws Exception {
@@ -36,55 +37,55 @@ public class LRUV3PerfTest {
         long summaryConsumeTime = 0;
 
         for (int j = 0; j < LOOP_COUNT; j++) {
-            System.out.println("Running the loop of " + (j + 1));
-            long producerTotalTime = 0;
-            long start = System.nanoTime();
-            CountDownLatch producerLatch = new CountDownLatch(PRODUCER_COUNT);
+//            System.out.println("Running the loop of " + (j + 1));
+        long producerTotalTime = 0;
+        long start = System.nanoTime();
+        CountDownLatch producerLatch = new CountDownLatch(PRODUCER_COUNT);
 
-            for (int i = 0; i < PRODUCER_COUNT; i++) {
-                new Thread(new Producer(producerLatch, produceResultQueue), "producer:" + (i + 1)).start();
-            }
-            for (int i = 0; i < PRODUCER_COUNT; i++) {
-                Result result = produceResultQueue.take();
-                Assert.assertEquals(Status.SUCCESS, result.status);
-                producerTotalTime += result.duration;
-            }
+        for (int i = 0; i < PRODUCER_COUNT; i++) {
+            new Thread(new Producer(producerLatch, produceResultQueue), "producer:" + (i + 1)).start();
+        }
+        for (int i = 0; i < PRODUCER_COUNT; i++) {
+            Result result = produceResultQueue.take();
+            Assert.assertEquals(Status.SUCCESS, result.status);
+            producerTotalTime += result.duration;
+        }
 
-            System.out.println("-----------------------------------------------");
-            System.out.println("Producing test result:");
-            System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);
-            System.out.printf("Total item count = %d\n", TOTAL_TEST_COUNT);
-            System.out.printf("Producer thread number = %d\n", PRODUCER_COUNT);
-            System.out.printf("Item message length = %d bytes\n", STR_LENGTH);
-            System.out.printf("Total producing time =  %d ns.\n", producerTotalTime);
-            System.out.printf("Average producing time = %d ns.\n", producerTotalTime / PRODUCER_COUNT);
-            System.out.println("-----------------------------------------------");
-            summaryProduceTime += producerTotalTime;
-            long consumerTotalTime = 0;
-            CountDownLatch consumerLatch = new CountDownLatch(CONSUMER_COUNT);
+//        System.out.println("-----------------------------------------------");
+//        System.out.println("Producing test result:");
+//        System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);
+//        System.out.printf("Total item count = %d\n", TOTAL_TEST_COUNT);
+//        System.out.printf("Producer thread number = %d\n", PRODUCER_COUNT);
+//        System.out.printf("Item message length = %d bytes\n", STR_LENGTH);
+        System.out.printf("Total producing time =  %d ns.\n", producerTotalTime);
+//        System.out.printf("Average producing time = %d ns.\n", producerTotalTime / PRODUCER_COUNT);
+//        System.out.println("-----------------------------------------------");
+        summaryProduceTime += producerTotalTime;
+        long consumerTotalTime = 0;
+        CountDownLatch consumerLatch = new CountDownLatch(CONSUMER_COUNT);
 
-            for (int i = 0; i < CONSUMER_COUNT; i++) {
-                new Thread(new Consumer(consumerLatch, consumeResultQueue), "consumer:" + i).start();
-            }
-            for (int i = 0; i < CONSUMER_COUNT; i++) {
-                Result result = consumeResultQueue.take();
-                Assert.assertEquals(Status.SUCCESS, result.status);
-                consumerTotalTime += result.duration;
-            }
+        for (int i = 0; i < CONSUMER_COUNT; i++) {
+            new Thread(new Consumer(consumerLatch, consumeResultQueue), "consumer:" + i).start();
+        }
+        for (int i = 0; i < CONSUMER_COUNT; i++) {
+            Result result = consumeResultQueue.take();
+            Assert.assertEquals(Status.SUCCESS, result.status);
+            consumerTotalTime += result.duration;
+        }
 
-            Assert.assertEquals(0, blockingQueue.size());
-            summaryConsumeTime += consumerTotalTime;
-            System.out.println("Consuming test result:");
-            System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);
-            System.out.printf("Total item count = %d\n", TOTAL_TEST_COUNT);
-            System.out.printf("Consumer thread number = %d\n", CONSUMER_COUNT);
-            System.out.printf("Item message length = %d bytes\n", STR_LENGTH);
-            System.out.printf("Total consuming time =  %d ns.\n", consumerTotalTime);
-            System.out.printf("Average consuming time = %d ns.\n", consumerTotalTime / CONSUMER_COUNT);
-            System.out.println("-----------------------------------------------");
+        Assert.assertEquals(0, blockingQueue.size());
+        summaryConsumeTime += consumerTotalTime;
+//        System.out.println("Consuming test result:");
+//        System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);
+//        System.out.printf("Total item count = %d\n", TOTAL_TEST_COUNT);
+//        System.out.printf("Consumer thread number = %d\n", CONSUMER_COUNT);
+//        System.out.printf("Item message length = %d bytes\n", STR_LENGTH);
+        System.out.printf("Total consuming time =  %d ns.\n", consumerTotalTime);
+//        System.out.printf("Average consuming time = %d ns.\n", consumerTotalTime / CONSUMER_COUNT);
+//        System.out.println("-----------------------------------------------");
 
-            produceCount.set(0);
-            consumeCount.set(0);
+        produceCount.set(0);
+        consumeCount.set(0);
         }
 
         System.out.println("Total produce after " + LOOP_COUNT + " loop used: " + summaryProduceTime + " ns, average: " + summaryProduceTime / LOOP_COUNT);

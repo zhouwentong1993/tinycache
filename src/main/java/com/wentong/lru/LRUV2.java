@@ -9,10 +9,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * LruCache实现，V1版本，线程安全
- *
+ * <p>
  * Created on Jul, 2020 by @author bobo
  */
-public class LRUV2<K, V> {
+public class LRUV2<K, V> implements LRU<K, V> {
     private int maxCapacity;
     private Map<K, Node<K, V>> map;
     private Node<K, V> head, tail;

@@ -5,10 +5,11 @@ import java.util.*;
 
 /**
  * 实现并发安全的 LRU cache
+ *
  * @param <K>
  * @param <V>
  */
-public class LRUV21<K, V> {
+public class LRUV21<K, V> implements LRU<K, V> {
 
     private final Map<K, Node<K, V>> map;
     private int maxCapacity = 4096;
