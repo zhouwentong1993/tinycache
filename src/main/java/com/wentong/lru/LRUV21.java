@@ -112,6 +112,8 @@ public class LRUV21<K, V> {
         }
         if (head != null) {
             head.prev = node;
+            node.next = head;
+            head = node;
         } else {
             node.next = null;
             node.prev = null;
