@@ -9,21 +9,21 @@ public class LRUV2Test {
 
     @Test
     public void testGetWhenNoElement() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         String a = lru.get("a");
         Assert.assertNull(a);
     }
 
     @Test
     public void testPut() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         lru.put("a", "a");
         Assert.assertEquals("a", lru.get("a"));
     }
 
     @Test
     public void testSameElementPut() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         lru.put("a", "a");
         lru.put("a", "b");
         Assert.assertEquals(1, lru.size());
@@ -32,7 +32,7 @@ public class LRUV2Test {
 
     @Test
     public void testKeysOrder() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         lru.put("a", "a");
         lru.put("b", "b");
         lru.put("a", "b");
@@ -42,7 +42,7 @@ public class LRUV2Test {
 
     @Test
     public void testNoNeedEvict() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
         lru.put("b", "b");
@@ -58,7 +58,7 @@ public class LRUV2Test {
 
     @Test
     public void testNeedEvict() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
         lru.put("b", "b");
@@ -76,7 +76,7 @@ public class LRUV2Test {
 
     @Test
     public void testRemoveLastNode() {
-        LRUV2<String, String> lru = new LRUV2<>();
+        LRUV21<String, String> lru = new LRUV21<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
         lru.put("b", "b");
