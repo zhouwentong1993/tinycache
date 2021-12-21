@@ -1,19 +1,16 @@
 package com.wentong.hugecache.storage;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * 基于堆外内存的存储实现
  */
 public class DirectBufferStorage implements Storage {
 
-    private int bufferSize;
-    private ByteBuffer buffer;
+
+    private final ByteBuffer buffer;
 
     public DirectBufferStorage(int bufferSize) {
-        this.bufferSize = bufferSize;
         this.buffer = ByteBuffer.allocateDirect(bufferSize);
     }
 
@@ -30,7 +27,7 @@ public class DirectBufferStorage implements Storage {
         byte[] bytes = new byte[size];
         int oldPosition = buffer.position();
         buffer.position(position);
-        buffer.get(bytes, position, size);
+        buffer.get(bytes, 0, size);
         buffer.position(oldPosition);
         return bytes;
     }
@@ -41,7 +38,7 @@ public class DirectBufferStorage implements Storage {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // ignore
     }
 }
