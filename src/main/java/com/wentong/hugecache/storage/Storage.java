@@ -24,4 +24,10 @@ public interface Storage extends Closeable {
      */
     void free();
 
+    /**
+     * 返回当前文件写入进度
+     * @return 文件写入进度
+     */
+    int position();
+
 }

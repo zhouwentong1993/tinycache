@@ -91,8 +91,6 @@ public class LRUV3PerfTest {
 
         System.out.println("Total produce after " + LOOP_COUNT + " loop used: " + summaryProduceTime + " ns, average: " + summaryProduceTime / LOOP_COUNT);
         System.out.println("Total consume after " + LOOP_COUNT + " loop used: " + summaryConsumeTime + " ns, average: " + summaryConsumeTime / LOOP_COUNT);
-        TimeUnit.SECONDS.sleep(10);
-
     }
 
     @Test

@@ -1,22 +1,32 @@
 package com.wentong.hugecache.storage;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 基于堆外内存的存储实现
  */
 public class DirectBufferStorage implements Storage {
 
-
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
     private final ByteBuffer buffer;
+    private final AtomicInteger currPosition;
 
     public DirectBufferStorage(int bufferSize) {
         this.buffer = ByteBuffer.allocateDirect(bufferSize);
+        currPosition = new AtomicInteger(0);
+    }
+
+    public DirectBufferStorage() {
+        this(DEFAULT_BUFFER_SIZE);
     }
 
     @Override
     public void put(int position, byte[] data) {
         buffer.put(data, position, data.length);
+        if (position > currPosition.intValue()) {
+            this.currPosition.set(position);
+        }
     }
 
     /*
@@ -35,6 +45,11 @@ public class DirectBufferStorage implements Storage {
     @Override
     public void free() {
         // ignore
+    }
+
+    @Override
+    public int position() {
+        return currPosition.intValue();
     }
 
     @Override
