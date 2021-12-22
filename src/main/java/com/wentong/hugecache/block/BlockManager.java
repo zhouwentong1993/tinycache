@@ -22,9 +22,7 @@ public class BlockManager implements Block {
     private final StorageMode mode;
     private final int capacity;
     private static final int MIN_BLOCK = 5;
-    private static final double MAX_DIRTY_RATE = 0.5;
     private ScheduledExecutorService monitorBlockThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("monitor-block-thread").build());
-    private ScheduledExecutorService cleanDirtyBlockThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("clean-dirty-block-thread").build());
 
     public BlockManager(int initialization, StorageMode mode, String dir, int capacity) {
         this.dir = dir;
@@ -48,12 +46,6 @@ public class BlockManager implements Block {
                 ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
                 queue.add(newBlock);
                 locks.put(newBlock, lock);
-            }
-        }, 10, 10, TimeUnit.SECONDS);
-
-        cleanDirtyBlockThread.scheduleAtFixedRate(() -> {
-            if ((double) dirtyPage() / (double) capacity > MAX_DIRTY_RATE) {
-                // TODO 触发垃圾回收机制，将老数据整体迁移到新的板块上。然后更新索引数据。
             }
         }, 10, 10, TimeUnit.SECONDS);
     }
@@ -121,4 +113,19 @@ public class BlockManager implements Block {
     public int freePage() {
         return currentBlock.freePage();
     }
+
+    public int getCapacity() {
+        return this.capacity;
+    }
+
+    private void copy(Block source, Block target) {
+
+    }
+
+    private void lockAll() {
+        this.readLock.lock();
+        this.writeLock.lock();
+    }
+
+
 }
