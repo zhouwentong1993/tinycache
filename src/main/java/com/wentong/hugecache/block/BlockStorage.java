@@ -73,11 +73,11 @@ public class BlockStorage implements Block, Closeable {
         if (data.length <= sourceData.length) {
             storage.put(pointer.getOffset(), data);
             pointer.setLength(data.length);
+            dirtySize.addAndGet(sourceData.length - data.length);
             return pointer;
         } else {
             Pointer newPointer = put(data);
             dirtySize.addAndGet(sourceData.length);
-            freeSize.addAndGet(-data.length);
             return newPointer;
         }
     }
@@ -90,6 +90,11 @@ public class BlockStorage implements Block, Closeable {
     @Override
     public int freePage() {
         return this.freeSize.intValue();
+    }
+
+    @Override
+    public int getCapacity() {
+        return this.capacity;
     }
 
 

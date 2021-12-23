@@ -2,8 +2,6 @@ package com.wentong.hugecache.block;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class BlockManagerTest {
 
     @Test

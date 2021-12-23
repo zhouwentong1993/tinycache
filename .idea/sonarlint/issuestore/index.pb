@@ -20,27 +20,13 @@ X
 :
 
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
-x
-Hsrc/test/java/com/wentong/hugecache/storage/DirectBufferStorageTest.java,e/d/ed3de6aa04eb5808a89650edd79c2dd691994d35
-Y
-)src/test/java/com/wentong/NormalTest.java,c/d/cdf6dc9079abf332b6930c13f5de014bf8d9308b
 d
 4src/main/java/com/wentong/hugecache/cache/Cache.java,2/5/25aa35b78a1233b9bec1e8b1ba188327a3fea812
 `
 0src/test/java/com/wentong/lru/LRUV2PerfTest.java,0/9/09b1aef6a166a2a8c170de8f7fea9622254a982f
 t
 Dsrc/main/java/com/wentong/hugecache/storage/DirectBufferStorage.java,d/8/d8f9efc8f71cfef14e23bccd97e6a95068cc4e06
-s
-Csrc/main/java/com/wentong/hugecache/storage/FileChannelStorage.java,7/3/732bb96cfdcda6faad8352612870c190194cab9f
-w
-Gsrc/test/java/com/wentong/hugecache/storage/FileChannelStorageTest.java,8/a/8a9ef52a1d739927df51923cd00bdf3e3bfd9fb7
-v
-Fsrc/test/java/com/wentong/hugecache/storage/FileMappedStorageTest.java,2/9/29a3564dd010eed596d02bf20d182987795165f4
 `
 0src/test/java/com/wentong/lru/LRUV3PerfTest.java,4/5/4519ca0c3d04d9ad7cfed46411ae5875b0dbe152
-n
->src/main/java/com/wentong/hugecache/storage/MemoryStorage.java,5/f/5fe4d035a0f639c890860aa7a713251f74f9b7db
-h
-8src/main/java/com/wentong/hugecache/storage/Storage.java,9/e/9e90e06bdb3b70c34df55b4779b5fbfdb3cd2a1b
 d
 4src/main/java/com/wentong/hugecache/StorageMode.java,3/4/34059bdfffc05d203c5e0318e9e2aa6de6eaaad0

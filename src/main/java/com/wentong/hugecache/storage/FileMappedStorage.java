@@ -64,6 +64,9 @@ public class FileMappedStorage implements Storage {
             return new byte[0];
         }
         int oldPosition = this.mbb.position();
+        if (oldPosition < position) {
+            return new byte[0];
+        }
         this.mbb.position(position);
         byte[] bytes = new byte[size];
         this.mbb.get(bytes);

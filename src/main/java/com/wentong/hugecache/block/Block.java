@@ -46,4 +46,6 @@ public interface Block {
      */
     int freePage();
 
+    int getCapacity();
+
 }

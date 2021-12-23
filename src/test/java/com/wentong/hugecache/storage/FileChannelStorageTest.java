@@ -23,6 +23,9 @@ public class FileChannelStorageTest {
         retrieve = storage.retrieve(0, 11);
         Assert.assertEquals(11, retrieve.length);
         Assert.assertEquals("new dlrowld", new String(retrieve));
+
+        retrieve = storage.retrieve(1000, 1);
+        Assert.assertEquals(0, retrieve.length);
     }
 
     @Test
