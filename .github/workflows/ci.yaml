@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: macos-latest
     env:
-      DEFAULT-PATH:
+      DEFAULT-PATH: /Users/runner/work
     steps:
       - uses: actions/checkout@v2
       - name: list directory
