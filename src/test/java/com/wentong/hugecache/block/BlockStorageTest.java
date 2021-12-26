@@ -2,12 +2,11 @@ package com.wentong.hugecache.block;
 
 import com.wentong.hugecache.Pointer;
 import com.wentong.hugecache.StorageMode;
+import com.wentong.util.PathUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.Assert.*;
 
 public class BlockStorageTest {
 
