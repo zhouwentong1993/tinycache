@@ -15,8 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class LRUV3PerfTest {
 
-    private static final int PRODUCER_COUNT = 16;
-    private static final int CONSUMER_COUNT = 16;
+    private static final int PRODUCER_COUNT = 8;
+    private static final int CONSUMER_COUNT = 8;
     private static final int STR_LENGTH = 6;
     private static final int TOTAL_TEST_COUNT = 1000000;
     private static final int LOOP_COUNT = 5;
@@ -38,9 +38,7 @@ public class LRUV3PerfTest {
         long summaryConsumeTime = 0;
 
         for (int j = 0; j < LOOP_COUNT; j++) {
-//            System.out.println("Running the loop of " + (j + 1));
             long producerTotalTime = 0;
-            long start = System.nanoTime();
             CountDownLatch producerLatch = new CountDownLatch(PRODUCER_COUNT);
 
             for (int i = 0; i < PRODUCER_COUNT; i++) {

@@ -13,7 +13,7 @@ public class BlockStorageTest {
 
     @Test
     public void put() {
-        BlockStorage storage = new BlockStorage(StorageMode.MMAP, "/Users/renmai/IdeaProjects/tinycache/data/mmap", 1024);
+        BlockStorage storage = new BlockStorage(StorageMode.MMAP, PathUtil.getSystemDefaultPath() + "/data/mmap", 1024);
         storage.put("hello world".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(1024, storage.getCapacity());
         Assert.assertEquals(0, storage.dirtyPage());
@@ -22,7 +22,7 @@ public class BlockStorageTest {
 
     @Test
     public void retrieve() {
-        BlockStorage storage = new BlockStorage(StorageMode.MMAP, "/Users/renmai/IdeaProjects/tinycache/data/mmap", 1024);
+        BlockStorage storage = new BlockStorage(StorageMode.MMAP, PathUtil.getSystemDefaultPath() + "/data/mmap", 1024);
         Pointer pointer = storage.put("hello world".getBytes(StandardCharsets.UTF_8));
         byte[] retrieve = storage.retrieve(pointer);
         Assert.assertEquals("hello world", new String(retrieve));
@@ -36,7 +36,7 @@ public class BlockStorageTest {
 
     @Test
     public void remove() {
-        BlockStorage storage = new BlockStorage(StorageMode.MMAP, "/Users/renmai/IdeaProjects/tinycache/data/mmap", 1024);
+        BlockStorage storage = new BlockStorage(StorageMode.MMAP, PathUtil.getSystemDefaultPath() + "/data/mmap", 1024);
         Pointer pointer = storage.put("hello world".getBytes(StandardCharsets.UTF_8));
         byte[] remove = storage.remove(pointer);
         Assert.assertEquals("hello world", new String(remove));
@@ -45,7 +45,7 @@ public class BlockStorageTest {
 
     @Test
     public void updateWhenFitData() {
-        BlockStorage storage = new BlockStorage(StorageMode.MMAP, "/Users/renmai/IdeaProjects/tinycache/data/mmap", 1024);
+        BlockStorage storage = new BlockStorage(StorageMode.MMAP, PathUtil.getSystemDefaultPath() + "/data/mmap", 1024);
         Pointer pointer = storage.put("hello world".getBytes(StandardCharsets.UTF_8));
         Pointer updatePointer = storage.update(pointer, "new word".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(pointer.getOffset(), updatePointer.getOffset());
@@ -55,7 +55,7 @@ public class BlockStorageTest {
 
     @Test
     public void updateWhenNotFitData() {
-        BlockStorage storage = new BlockStorage(StorageMode.MMAP, "/Users/renmai/IdeaProjects/tinycache/data/mmap", 1024);
+        BlockStorage storage = new BlockStorage(StorageMode.MMAP, PathUtil.getSystemDefaultPath() + "/data/mmap", 1024);
         Pointer pointer = storage.put("word".getBytes(StandardCharsets.UTF_8));
         Pointer updatePointer = storage.update(pointer, "new word".getBytes(StandardCharsets.UTF_8));
         Assert.assertNotEquals(pointer.getOffset(), updatePointer.getOffset());

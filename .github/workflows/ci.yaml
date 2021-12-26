@@ -5,9 +5,12 @@ on: [push]
 jobs:
   build:
     runs-on: macos-latest
-
+    env:
+      DEFAULT-PATH:
     steps:
       - uses: actions/checkout@v2
+      - name: list directory
+        run: pwd
       - name: Set up JDK 8
         uses: actions/setup-java@v2
         with:

@@ -42,6 +42,7 @@ public class LRUV21<K, V> implements LRU<K, V> {
         this.map = new HashMap<>();
     }
 
+    @Override
     public synchronized V get(K k) {
         if (map.containsKey(k)) {
             Node<K, V> node = map.get(k);
@@ -53,6 +54,7 @@ public class LRUV21<K, V> implements LRU<K, V> {
         }
     }
 
+    @Override
     public synchronized void put(K k, V v) {
         if (map.containsKey(k)) {
             Node<K, V> node = map.get(k);
@@ -69,6 +71,7 @@ public class LRUV21<K, V> implements LRU<K, V> {
         }
     }
 
+    @Override
     public synchronized int size() {
         return map.size();
     }
