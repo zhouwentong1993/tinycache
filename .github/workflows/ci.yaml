@@ -12,7 +12,7 @@ jobs:
       - name: list directory
         run: pwd
       - name: init directory
-        run: mkdir -p /Users/runner/work/data
+        run: mkdir -p /Users/runner/work/data/mmap;mkdir -p /Users/runner/work/data/filechannel;
       - name: Set up JDK 8
         uses: actions/setup-java@v2
         with:
