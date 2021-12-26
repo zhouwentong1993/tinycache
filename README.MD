@@ -1,4 +1,6 @@
 # tinycache
+[![codecov.io](https://codecov.io/github/<Your Organization/Acc.>/<YourRepo>/coverage.svg?branch=master)]
+(https://codecov.io/github/<Your Organization/Acc.>/<YourRepo>?branch=master)
 - 实现简单的 LRU
   ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5ae86f7c-e885-4e00-bd33-60875ecd1729/Untitled.png)
 
