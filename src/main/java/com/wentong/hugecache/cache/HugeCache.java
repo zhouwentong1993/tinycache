@@ -65,8 +65,14 @@ public class HugeCache<K> implements Cache<K> {
 
         @Override
         public void process() {
+            // 脏页数据过多了，触发 clean 操作
             if (blockManager.dirtyPage() / (double) blockManager.getCapacity() > MAX_DIRTY_RATE) {
+                HugeCache.this.blockManager.stopRunning();
+                try {
 
+                } finally {
+                    HugeCache.this.blockManager.continueRunning();
+                }
             }
         }
 

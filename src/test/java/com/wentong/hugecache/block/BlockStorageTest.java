@@ -30,10 +30,10 @@ class BlockStorageTest {
         byte[] retrieve = storage.retrieve(pointer);
         assertEquals("hello world", new String(retrieve));
 
-        retrieve = storage.retrieve(new Pointer(1, 10));
+        retrieve = storage.retrieve(new Pointer(1, 10, pointer.getStorage()));
         assertEquals("ello world", new String(retrieve));
 
-        retrieve = storage.retrieve(new Pointer(100, 10));
+        retrieve = storage.retrieve(new Pointer(100, 10, pointer.getStorage()));
         assertEquals(0, retrieve.length);
     }
 

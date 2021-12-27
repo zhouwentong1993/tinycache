@@ -46,12 +46,12 @@ public class BlockStorage implements Block, Closeable {
         storage.put(position, data);
         currentPosition.set(data.length + position);
         freeSize.addAndGet(-data.length);
-        return new Pointer(position, data.length);
+        return new Pointer(position, data.length, this.storage);
     }
 
     @Override
     public byte[] retrieve(Pointer pointer) {
-        return storage.retrieve(pointer.getOffset(), pointer.getLength());
+        return pointer.getStorage().retrieve(pointer.getOffset(), pointer.getLength());
     }
 
     /**
@@ -62,16 +62,16 @@ public class BlockStorage implements Block, Closeable {
      */
     @Override
     public byte[] remove(Pointer pointer) {
-        byte[] retrieve = storage.retrieve(pointer.getOffset(), pointer.getLength());
+        byte[] retrieve = pointer.getStorage().retrieve(pointer.getOffset(), pointer.getLength());
         dirtySize.addAndGet(pointer.getLength());
         return retrieve;
     }
 
     @Override
     public Pointer update(Pointer pointer, byte[] data) {
-        byte[] sourceData = storage.retrieve(pointer.getOffset(), pointer.getLength());
+        byte[] sourceData = pointer.getStorage().retrieve(pointer.getOffset(), pointer.getLength());
         if (data.length <= sourceData.length) {
-            storage.put(pointer.getOffset(), data);
+            pointer.getStorage().put(pointer.getOffset(), data);
             pointer.setLength(data.length);
             dirtySize.addAndGet(sourceData.length - data.length);
             return pointer;

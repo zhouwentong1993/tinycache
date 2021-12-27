@@ -109,6 +109,16 @@ public class BlockManager implements Block {
         return this.capacity;
     }
 
+    public void stopRunning() {
+        this.writeLock.lock();
+    }
+
+    public void continueRunning() {
+        if (writeLock.tryLock()) {
+            this.writeLock.unlock();
+        }
+    }
+
     class MonitorThread extends ServiceThread {
 
         public MonitorThread(int awaitTime, TimeUnit timeUnit) {
