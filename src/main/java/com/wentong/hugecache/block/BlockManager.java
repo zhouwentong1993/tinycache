@@ -6,8 +6,6 @@ import com.wentong.hugecache.Pointer;
 import com.wentong.hugecache.StorageMode;
 import lombok.SneakyThrows;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -15,9 +13,8 @@ public class BlockManager implements Block {
 
     private final BlockingQueue<Block> queue = new LinkedBlockingQueue<>();
     private Block currentBlock;
-    private ReentrantReadWriteLock.ReadLock readLock;
-    private ReentrantReadWriteLock.WriteLock writeLock;
-    private final Map<Block, ReentrantReadWriteLock> locks = new HashMap<>();
+    private final ReentrantReadWriteLock.ReadLock readLock;
+    private final ReentrantReadWriteLock.WriteLock writeLock;
     private final String dir;
     private final StorageMode mode;
     private final int capacity;
@@ -31,21 +28,19 @@ public class BlockManager implements Block {
         if (initialization < 1) {
             initialization = 10;
         }
+        ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+        this.readLock = lock.readLock();
+        this.writeLock = lock.writeLock();
         for (int i = 0; i < initialization; i++) {
             Block block = new BlockStorage(mode, dir, capacity);
             queue.add(block);
-            locks.put(block, new ReentrantReadWriteLock());
         }
         currentBlock = queue.poll();
-        this.writeLock = locks.get(currentBlock).writeLock();
-        this.readLock = locks.get(currentBlock).readLock();
 
         monitorBlockThread.scheduleAtFixedRate(() -> {
             if (queue.size() < MIN_BLOCK) {
                 BlockStorage newBlock = new BlockStorage(mode, dir, capacity);
-                ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
                 queue.add(newBlock);
-                locks.put(newBlock, lock);
             }
         }, 10, 10, TimeUnit.SECONDS);
     }
@@ -57,7 +52,6 @@ public class BlockManager implements Block {
         try {
             return currentBlock.put(data);
         } catch (FileFullException ex) {
-            this.locks.remove(currentBlock);
             // 存储空间满了，需要重新获取文件。从队列里获取或者重新创建。
             Block block = queue.poll(3, TimeUnit.SECONDS);
             if (block != null) {
@@ -65,11 +59,11 @@ public class BlockManager implements Block {
             } else {
                 currentBlock = new BlockStorage(mode, dir, capacity);
             }
-            ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-            this.writeLock = lock.writeLock();
-            this.readLock = lock.readLock();
+            // 注意，这里只做一次 catch。如果新放入的文件再次触发 FileFullException，不再处理，交由上层处理。
+            // 这种情况通常出现在 ① 文件特别大。② 文件写入极其频繁
             return currentBlock.put(data);
         } finally {
+            // 在这里释放锁，如果在 finally 释放锁，writeLock 就不是原来的了。
             this.writeLock.unlock();
         }
     }
@@ -117,15 +111,4 @@ public class BlockManager implements Block {
     public int getCapacity() {
         return this.capacity;
     }
-
-    private void copy(Block source, Block target) {
-
-    }
-
-    private void lockAll() {
-        this.readLock.lock();
-        this.writeLock.lock();
-    }
-
-
 }
