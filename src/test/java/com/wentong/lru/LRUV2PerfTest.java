@@ -1,21 +1,22 @@
 package com.wentong.lru;
 
 import com.wentong.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * 性能测试
  */
-public class LRUV2PerfTest {
+class LRUV2PerfTest {
 
     @Test
-    public void testProduceThenConsume() throws Exception {
+    void testProduceThenConsume() throws Exception {
         long producerTotalTime = 0;
         long start = System.nanoTime();
         CountDownLatch producerLatch = new CountDownLatch(PRODUCER_COUNT);
@@ -25,7 +26,7 @@ public class LRUV2PerfTest {
         }
         for (int i = 0; i < PRODUCER_COUNT; i++) {
             Result result = produceResultQueue.take();
-            Assert.assertEquals(Status.SUCCESS, result.status);
+            assertEquals(Status.SUCCESS, result.status);
             producerTotalTime += result.duration;
         }
 
@@ -47,11 +48,11 @@ public class LRUV2PerfTest {
         }
         for (int i = 0; i < CONSUMER_COUNT; i++) {
             Result result = consumeResultQueue.take();
-            Assert.assertEquals(Status.SUCCESS, result.status);
+            assertEquals(Status.SUCCESS, result.status);
             consumerTotalTime += result.duration;
         }
 
-        Assert.assertEquals(0, blockingQueue.size());
+        assertEquals(0, blockingQueue.size());
 
         System.out.println("Consuming test result:");
         System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);
@@ -65,7 +66,7 @@ public class LRUV2PerfTest {
     }
 
     @Test
-    public void testProduceMixConsume() throws Exception {
+    void testProduceMixConsume() throws Exception {
         long start = System.nanoTime();
         CountDownLatch latch = new CountDownLatch(PRODUCER_COUNT + CONSUMER_COUNT);
 
@@ -82,7 +83,7 @@ public class LRUV2PerfTest {
 
         for (int i = 0; i < PRODUCER_COUNT; i++) {
             Result result = produceResultQueue.take();
-            Assert.assertEquals(Status.SUCCESS, result.status);
+            assertEquals(Status.SUCCESS, result.status);
             producerTotalTime += result.duration;
         }
 
@@ -98,11 +99,11 @@ public class LRUV2PerfTest {
 
         for (int i = 0; i < CONSUMER_COUNT; i++) {
             Result result = consumeResultQueue.take();
-            Assert.assertEquals(Status.SUCCESS, result.status);
+            assertEquals(Status.SUCCESS, result.status);
             consumerTotalTime += result.duration;
         }
 
-        Assert.assertEquals(0, blockingQueue.size());
+        assertEquals(0, blockingQueue.size());
 
         System.out.println("Consuming test result:");
         System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);

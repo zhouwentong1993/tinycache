@@ -7,10 +7,6 @@ X
 (src/main/java/com/wentong/lru/LRUV1.java,7/f/7fa68ab1646151f4b65ccd70601f3032ccca6d27
 Q
 !arthas-output/20211220-103055.svg,1/2/12c5315df14e04d3712629fe3eab6041f540fafb
-\
-,src/test/java/com/wentong/lru/LRUV2Test.java,5/d/5d395bef265050fa5a42cfc8e11c4678851dca1b
-\
-,src/test/java/com/wentong/lru/LRUV1Test.java,b/a/bafb4fa4a250eee912cbcc5ad6b57e4798fc6d95
 Y
 )src/main/java/com/wentong/lru/LRUV21.java,4/e/4e562fc0449e999622c28eca554d18feeb5c8c17
 X
@@ -22,11 +18,5 @@ X
 .gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
 d
 4src/main/java/com/wentong/hugecache/cache/Cache.java,2/5/25aa35b78a1233b9bec1e8b1ba188327a3fea812
-`
-0src/test/java/com/wentong/lru/LRUV2PerfTest.java,0/9/09b1aef6a166a2a8c170de8f7fea9622254a982f
 t
 Dsrc/main/java/com/wentong/hugecache/storage/DirectBufferStorage.java,d/8/d8f9efc8f71cfef14e23bccd97e6a95068cc4e06
-`
-0src/test/java/com/wentong/lru/LRUV3PerfTest.java,4/5/4519ca0c3d04d9ad7cfed46411ae5875b0dbe152
-d
-4src/main/java/com/wentong/hugecache/StorageMode.java,3/4/34059bdfffc05d203c5e0318e9e2aa6de6eaaad0

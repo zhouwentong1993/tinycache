@@ -1,18 +1,18 @@
 package com.wentong;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.charset.StandardCharsets;
 
-public class NormalTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    public static final int CAPACITY = 10;
+class NormalTest {
+
+    static final int CAPACITY = 10;
 
     @Test
-    public void testIntBufferPut() {
+    void testIntBufferPut() {
         IntBuffer buffer = IntBuffer.allocate(CAPACITY);
         // 写状态
         for (int i = 0; i < CAPACITY; i++) {
@@ -30,12 +30,12 @@ public class NormalTest {
         buffer.flip();
         System.out.println(buffer);
         for (int i = 0; i < CAPACITY; i++) {
-            Assert.assertEquals(i, buffer.get());
+            assertEquals(i, buffer.get());
         }
     }
 
     @Test
-    public void testBytebufferPut() {
+    void testBytebufferPut() {
         String str = "2333";
         final ByteBuffer buf = ByteBuffer.allocateDirect(1024);
         int length = str.getBytes().length;
@@ -43,7 +43,7 @@ public class NormalTest {
         buf.flip();
         byte[] dst = new byte[length];
         buf.get(dst, 0, dst.length);
-        Assert.assertEquals("2333", new String(dst));
+        assertEquals("2333", new String(dst));
     }
 
 }

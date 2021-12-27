@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +44,7 @@ public class FileMappedStorage implements Storage {
         }
         this.raf = new RandomAccessFile(dataFile, "rw");
         mbb = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, capacity);
-        currPosition = new AtomicInteger(mbb.position());
+        currPosition = new AtomicInteger(0);
         // 启动定时任务，每隔 10s force 一下，减少消息丢失
         ss.scheduleAtFixedRate(mbb::force, 10, 10, TimeUnit.SECONDS);
     }

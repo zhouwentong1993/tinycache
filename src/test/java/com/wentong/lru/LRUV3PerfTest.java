@@ -1,8 +1,7 @@
 package com.wentong.lru;
 
 import com.wentong.util.RandomUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -10,10 +9,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * 性能测试
  */
-public class LRUV3PerfTest {
+class LRUV3PerfTest {
 
     private static final int PRODUCER_COUNT = 8;
     private static final int CONSUMER_COUNT = 8;
@@ -32,7 +33,7 @@ public class LRUV3PerfTest {
     private static final LRUV3<String, String> lru = new LRUV3<>(TOTAL_TEST_COUNT * 2, "v2");
 
     @Test
-    public void testProduceThenConsume() throws Exception {
+    void testProduceThenConsume() throws Exception {
 //        TimeUnit.SECONDS.sleep(20);
         long summaryProduceTime = 0;
         long summaryConsumeTime = 0;
@@ -46,7 +47,7 @@ public class LRUV3PerfTest {
             }
             for (int i = 0; i < PRODUCER_COUNT; i++) {
                 Result result = produceResultQueue.take();
-                Assert.assertEquals(Status.SUCCESS, result.status);
+                assertEquals(Status.SUCCESS, result.status);
                 producerTotalTime += result.duration;
             }
 
@@ -68,11 +69,11 @@ public class LRUV3PerfTest {
             }
             for (int i = 0; i < CONSUMER_COUNT; i++) {
                 Result result = consumeResultQueue.take();
-                Assert.assertEquals(Status.SUCCESS, result.status);
+                assertEquals(Status.SUCCESS, result.status);
                 consumerTotalTime += result.duration;
             }
 
-            Assert.assertEquals(0, blockingQueue.size());
+            assertEquals(0, blockingQueue.size());
             summaryConsumeTime += consumerTotalTime;
 //        System.out.println("Consuming test result:");
 //        System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);
@@ -92,7 +93,7 @@ public class LRUV3PerfTest {
     }
 
     @Test
-    public void testProduceMixConsume() throws Exception {
+    void testProduceMixConsume() throws Exception {
         long start = System.nanoTime();
         CountDownLatch latch = new CountDownLatch(PRODUCER_COUNT + CONSUMER_COUNT);
 
@@ -109,7 +110,7 @@ public class LRUV3PerfTest {
 
         for (int i = 0; i < PRODUCER_COUNT; i++) {
             Result result = produceResultQueue.take();
-            Assert.assertEquals(Status.SUCCESS, result.status);
+            assertEquals(Status.SUCCESS, result.status);
             producerTotalTime += result.duration;
         }
 
@@ -125,11 +126,11 @@ public class LRUV3PerfTest {
 
         for (int i = 0; i < CONSUMER_COUNT; i++) {
             Result result = consumeResultQueue.take();
-            Assert.assertEquals(Status.SUCCESS, result.status);
+            assertEquals(Status.SUCCESS, result.status);
             consumerTotalTime += result.duration;
         }
 
-        Assert.assertEquals(0, blockingQueue.size());
+        assertEquals(0, blockingQueue.size());
 
         System.out.println("Consuming test result:");
         System.out.printf("Total test time = %d ns.\n", System.nanoTime() - start);

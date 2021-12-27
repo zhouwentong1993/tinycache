@@ -30,9 +30,10 @@ public class FileChannelStorage implements Storage {
                 throw new IllegalArgumentException("This dir can't be created!");
             }
         }
+        // 暂时不采用读取旧文件的方式。考虑如下：1. 现有设计会导致单元测试过不去（主要原因）2. 如果要更正，需要改底层存储，不光存消息，也要存描述信息（元数据）
         raf = new RandomAccessFile(dir + "/" + System.currentTimeMillis(), "rw");
         fileChannel = raf.getChannel();
-        this.currPosition = new AtomicInteger((int) fileChannel.position());
+        this.currPosition = new AtomicInteger(0);
     }
 
     @SneakyThrows

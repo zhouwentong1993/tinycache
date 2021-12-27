@@ -1,12 +1,14 @@
 package com.wentong.hugecache.block;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.wentong.exception.FileFullException;
 import com.wentong.hugecache.Pointer;
+import com.wentong.hugecache.ServiceThread;
 import com.wentong.hugecache.StorageMode;
 import lombok.SneakyThrows;
 
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class BlockManager implements Block {
@@ -19,7 +21,7 @@ public class BlockManager implements Block {
     private final StorageMode mode;
     private final int capacity;
     private static final int MIN_BLOCK = 5;
-    private ScheduledExecutorService monitorBlockThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("monitor-block-thread").build());
+    private final MonitorThread thread;
 
     public BlockManager(int initialization, StorageMode mode, String dir, int capacity) {
         this.dir = dir;
@@ -36,13 +38,8 @@ public class BlockManager implements Block {
             queue.add(block);
         }
         currentBlock = queue.poll();
-
-        monitorBlockThread.scheduleAtFixedRate(() -> {
-            if (queue.size() < MIN_BLOCK) {
-                BlockStorage newBlock = new BlockStorage(mode, dir, capacity);
-                queue.add(newBlock);
-            }
-        }, 10, 10, TimeUnit.SECONDS);
+        thread = new MonitorThread(10, TimeUnit.SECONDS);
+        thread.start();
     }
 
     @SneakyThrows
@@ -111,4 +108,34 @@ public class BlockManager implements Block {
     public int getCapacity() {
         return this.capacity;
     }
+
+    class MonitorThread extends ServiceThread {
+
+        public MonitorThread(int awaitTime, TimeUnit timeUnit) {
+            super(awaitTime, timeUnit);
+        }
+
+        @Override
+        public void cleanUp() {
+
+        }
+
+        @Override
+        public void process() {
+            if (BlockManager.this.queue.size() < MIN_BLOCK) {
+                BlockStorage newBlock = new BlockStorage(mode, dir, capacity);
+                queue.add(newBlock);
+            }
+        }
+
+        @Override
+        public String threadName() {
+            return MonitorThread.class.getName();
+        }
+    }
+
+    public void stopMonitor() {
+        this.thread.stop();
+    }
+
 }

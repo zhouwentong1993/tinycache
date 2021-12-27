@@ -1,47 +1,48 @@
 package com.wentong.lru;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class LRUV2Test {
+import static org.junit.jupiter.api.Assertions.*;
+
+class LRUV2Test {
 
     @Test
-    public void testGetWhenNoElement() {
+    void testGetWhenNoElement() {
         LRUV21<String, String> lru = new LRUV21<>();
         String a = lru.get("a");
-        Assert.assertNull(a);
+        assertNull(a);
     }
 
     @Test
-    public void testPut() {
+    void testPut() {
         LRUV21<String, String> lru = new LRUV21<>();
         lru.put("a", "a");
-        Assert.assertEquals("a", lru.get("a"));
+        assertEquals("a", lru.get("a"));
     }
 
     @Test
-    public void testSameElementPut() {
+    void testSameElementPut() {
         LRUV21<String, String> lru = new LRUV21<>();
         lru.put("a", "a");
         lru.put("a", "b");
-        Assert.assertEquals(1, lru.size());
-        Assert.assertEquals("b", lru.get("a"));
+        assertEquals(1, lru.size());
+        assertEquals("b", lru.get("a"));
     }
 
     @Test
-    public void testKeysOrder() {
+    void testKeysOrder() {
         LRUV21<String, String> lru = new LRUV21<>();
         lru.put("a", "a");
         lru.put("b", "b");
         lru.put("a", "b");
         List<String> orders = lru.keyOrders();
-        Assert.assertEquals("a", orders.get(0));
+        assertEquals("a", orders.get(0));
     }
 
     @Test
-    public void testNoNeedEvict() {
+    void testNoNeedEvict() {
         LRUV21<String, String> lru = new LRUV21<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
@@ -51,13 +52,13 @@ public class LRUV2Test {
         lru.put("e", "e");
         lru.put("a", "a");
         List<String> orders = lru.keyOrders();
-        Assert.assertEquals("a", orders.get(0));
-        Assert.assertEquals("e", orders.get(1));
-        Assert.assertEquals("b", orders.get(4));
+        assertEquals("a", orders.get(0));
+        assertEquals("e", orders.get(1));
+        assertEquals("b", orders.get(4));
     }
 
     @Test
-    public void testNeedEvict() {
+    void testNeedEvict() {
         LRUV21<String, String> lru = new LRUV21<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
@@ -68,14 +69,14 @@ public class LRUV2Test {
         lru.put("a", "a");
         lru.put("f", "f");
         List<String> orders = lru.keyOrders();
-        Assert.assertEquals("a", orders.get(1));
-        Assert.assertEquals("e", orders.get(2));
-        Assert.assertFalse(orders.contains("b"));
+        assertEquals("a", orders.get(1));
+        assertEquals("e", orders.get(2));
+        assertFalse(orders.contains("b"));
     }
 
 
     @Test
-    public void testRemoveLastNode() {
+    void testRemoveLastNode() {
         LRUV21<String, String> lru = new LRUV21<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
@@ -85,7 +86,7 @@ public class LRUV2Test {
         lru.put("e", "e");
         lru.put("b", "b");
         List<String> orders = lru.keyOrders();
-        Assert.assertEquals("b", orders.get(0));
+        assertEquals("b", orders.get(0));
     }
 
 
