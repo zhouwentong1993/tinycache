@@ -30,4 +30,6 @@ public interface Storage extends Closeable {
      */
     int position();
 
+    int capacity();
+
 }

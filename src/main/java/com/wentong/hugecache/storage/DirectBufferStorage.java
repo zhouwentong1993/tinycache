@@ -11,10 +11,12 @@ public class DirectBufferStorage implements Storage {
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
     private final ByteBuffer buffer;
     private final AtomicInteger currPosition;
+    private final int capacity;
 
-    public DirectBufferStorage(int bufferSize) {
-        this.buffer = ByteBuffer.allocateDirect(bufferSize);
+    public DirectBufferStorage(int capacity) {
+        this.buffer = ByteBuffer.allocateDirect(capacity);
         currPosition = new AtomicInteger(0);
+        this.capacity = capacity;
     }
 
     public DirectBufferStorage() {
@@ -50,6 +52,11 @@ public class DirectBufferStorage implements Storage {
     @Override
     public int position() {
         return currPosition.intValue();
+    }
+
+    @Override
+    public int capacity() {
+        return this.capacity;
     }
 
     @Override

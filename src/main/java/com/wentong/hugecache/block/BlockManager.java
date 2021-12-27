@@ -4,6 +4,7 @@ import com.wentong.exception.FileFullException;
 import com.wentong.hugecache.Pointer;
 import com.wentong.hugecache.ServiceThread;
 import com.wentong.hugecache.StorageMode;
+import com.wentong.hugecache.storage.Storage;
 import lombok.SneakyThrows;
 
 import java.util.concurrent.BlockingQueue;
@@ -13,8 +14,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class BlockManager implements Block {
 
-    private final BlockingQueue<Block> queue = new LinkedBlockingQueue<>();
-    private Block currentBlock;
+    private final BlockingQueue<BlockStorage> queue = new LinkedBlockingQueue<>();
+    private BlockStorage currentBlock;
     private final ReentrantReadWriteLock.ReadLock readLock;
     private final ReentrantReadWriteLock.WriteLock writeLock;
     private final String dir;
@@ -34,7 +35,7 @@ public class BlockManager implements Block {
         this.readLock = lock.readLock();
         this.writeLock = lock.writeLock();
         for (int i = 0; i < initialization; i++) {
-            Block block = new BlockStorage(mode, dir, capacity);
+            BlockStorage block = new BlockStorage(mode, dir, capacity);
             queue.add(block);
         }
         currentBlock = queue.poll();
@@ -50,7 +51,7 @@ public class BlockManager implements Block {
             return currentBlock.put(data);
         } catch (FileFullException ex) {
             // 存储空间满了，需要重新获取文件。从队列里获取或者重新创建。
-            Block block = queue.poll(3, TimeUnit.SECONDS);
+            BlockStorage block = queue.poll(3, TimeUnit.SECONDS);
             if (block != null) {
                 currentBlock = block;
             } else {
@@ -119,6 +120,14 @@ public class BlockManager implements Block {
         }
     }
 
+    public Storage getCurrentStorage() {
+        return this.currentBlock.getStorage();
+    }
+
+    public void copyStorage() {
+        this.currentBlock = new BlockStorage(mode, dir, capacity);
+    }
+
     class MonitorThread extends ServiceThread {
 
         public MonitorThread(int awaitTime, TimeUnit timeUnit) {
@@ -132,9 +141,14 @@ public class BlockManager implements Block {
 
         @Override
         public void process() {
-            if (BlockManager.this.queue.size() < MIN_BLOCK) {
-                BlockStorage newBlock = new BlockStorage(mode, dir, capacity);
-                queue.add(newBlock);
+            writeLock.lock();
+            try {
+                if (BlockManager.this.queue.size() < MIN_BLOCK) {
+                    BlockStorage newBlock = new BlockStorage(mode, dir, capacity);
+                    queue.add(newBlock);
+                }
+            } finally {
+                writeLock.unlock();
             }
         }
 

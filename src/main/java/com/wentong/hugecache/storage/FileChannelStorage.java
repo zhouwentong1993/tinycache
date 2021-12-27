@@ -70,6 +70,11 @@ public class FileChannelStorage implements Storage {
     }
 
     @Override
+    public int capacity() {
+        return this.capacity;
+    }
+
+    @Override
     public void close() throws IOException {
         if (raf != null) {
             raf.close();

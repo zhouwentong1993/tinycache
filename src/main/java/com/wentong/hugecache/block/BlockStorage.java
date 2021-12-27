@@ -97,6 +97,9 @@ public class BlockStorage implements Block, Closeable {
         return this.capacity;
     }
 
+    public Storage getStorage() {
+        return storage;
+    }
 
     @Override
     public void close() throws IOException {

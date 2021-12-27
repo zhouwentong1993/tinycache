@@ -41,6 +41,11 @@ public class MemoryStorage implements Storage {
     }
 
     @Override
+    public int capacity() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public void close() throws IOException {
         // ignore
     }
