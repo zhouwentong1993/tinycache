@@ -3,14 +3,12 @@ package com.wentong.hugecache;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-// todo 是否需要同 RocketMQ 一样，自定义 CountDownLatch
 @Slf4j
 public abstract class ServiceThread implements Runnable {
     private volatile boolean stop = false;
-    private final CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch2 latch = new CountDownLatch2(1);
     private final int awaitTime;
     private final TimeUnit timeUnit;
 
@@ -52,7 +50,7 @@ public abstract class ServiceThread implements Runnable {
     }
 
     private void reset() {
-        // need implement
+        latch.reset();
     }
 
     public void stop() {
