@@ -11,7 +11,7 @@ public interface Cache<K> extends Closeable {
 
     byte[] get(K k);
 
-    void delete(K k);
+    byte[] delete(K k);
 
     void ttl(K k, long time, TimeUnit timeUnit);
 

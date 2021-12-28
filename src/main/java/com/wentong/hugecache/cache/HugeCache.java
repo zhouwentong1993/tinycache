@@ -2,31 +2,39 @@ package com.wentong.hugecache.cache;
 
 import com.wentong.hugecache.Pointer;
 import com.wentong.hugecache.ServiceThread;
+import com.wentong.hugecache.Statistics;
 import com.wentong.hugecache.block.BlockManager;
 import com.wentong.hugecache.storage.Storage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HugeCache<K> implements Cache<K> {
 
     private final BlockManager blockManager;
     private static final double MAX_DIRTY_RATE = 0.5;
+    private final ServiceThread cleanThread;
+    private final ServiceThread ttlThread;
 
     public HugeCache(BlockManager blockManager) {
         this.blockManager = blockManager;
-        CleanThread cleanThread = new CleanThread(30, TimeUnit.SECONDS);
+        this.cleanThread = new CleanThread(30, TimeUnit.SECONDS);
         cleanThread.start();
-        TTLThread ttlThread = new TTLThread(5, TimeUnit.SECONDS);
+        this.ttlThread = new TTLThread(500, TimeUnit.MILLISECONDS);
         ttlThread.start();
     }
 
     private final Map<K, Pointer> kPointerMap = new ConcurrentHashMap<>();
     private final Map<K, Long> ttlMap = new ConcurrentHashMap<>();
 
-    @Override
+    private final AtomicInteger getCounter = new AtomicInteger(0);
+    private final AtomicInteger hitCounter = new AtomicInteger(0);
+    private final AtomicInteger missCounter = new AtomicInteger(0);
 
+
+    @Override
     public void put(K k, byte[] v) {
         ttlMap.remove(k);
         Pointer pointer = blockManager.put(v);
@@ -44,29 +52,61 @@ public class HugeCache<K> implements Cache<K> {
 
     @Override
     public byte[] get(K k) {
-        Long time = ttlMap.getOrDefault(k, 0L);
-        if (System.currentTimeMillis() - time < 0) {
+        getCounter.incrementAndGet();
+        Long time = ttlMap.getOrDefault(k, -1L);
+        if (time != -1 && System.currentTimeMillis() - time >= 0) {
+            missCounter.incrementAndGet();
             return new byte[0];
         }
+
         Pointer pointer = kPointerMap.get(k);
-        return blockManager.retrieve(pointer);
+
+        if (pointer == null) {
+            missCounter.incrementAndGet();
+            return new byte[0];
+        } else {
+            byte[] retrieve = blockManager.retrieve(pointer);
+            if (retrieve.length > 0) {
+                hitCounter.incrementAndGet();
+            } else {
+                missCounter.incrementAndGet();
+            }
+            return retrieve;
+        }
     }
 
     @Override
-    public void delete(K k) {
-        Pointer pointer = kPointerMap.get(k);
-        blockManager.remove(pointer);
-        ttlMap.remove(k);
+    public byte[] delete(K k) {
+        Pointer pointer = kPointerMap.remove(k);
+        if (pointer != null) {
+            byte[] removedData = blockManager.remove(pointer);
+            ttlMap.remove(k);
+            return removedData;
+        } else {
+            return new byte[0];
+        }
     }
 
     @Override
     public void ttl(K k, long time, TimeUnit timeUnit) {
-        ttlMap.computeIfPresent(k, (key, value) -> timeUnit.toMillis(time));
+        ttlMap.put(k, System.currentTimeMillis() + timeUnit.toMillis(time));
     }
 
     @Override
     public void close() {
 
+    }
+
+    public Statistics getCacheStatistics() {
+        return new Statistics(getCounter.intValue(), missCounter.intValue(), hitCounter.intValue());
+    }
+
+    public ServiceThread getCleanThread() {
+        return cleanThread;
+    }
+
+    public ServiceThread getTtlThread() {
+        return ttlThread;
     }
 
     class CleanThread extends ServiceThread {
@@ -120,8 +160,9 @@ public class HugeCache<K> implements Cache<K> {
         public void process() {
             HugeCache.this.ttlMap.forEach((k, v) -> {
                 long now = System.currentTimeMillis();
-                if (now - v < 0) {
+                if (now >= v) {
                     HugeCache.this.delete(k);
+                    kPointerMap.remove(k);
                     ttlMap.remove(k);
                 }
             });

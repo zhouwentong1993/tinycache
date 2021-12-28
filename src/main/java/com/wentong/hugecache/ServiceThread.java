@@ -6,15 +6,15 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+// todo 是否需要同 RocketMQ 一样，自定义 CountDownLatch
 @Slf4j
 public abstract class ServiceThread implements Runnable {
     private volatile boolean stop = false;
     private final CountDownLatch latch = new CountDownLatch(1);
     private final int awaitTime;
     private final TimeUnit timeUnit;
-    private Thread thread;
 
-    public ServiceThread(int awaitTime, TimeUnit timeUnit) {
+    protected ServiceThread(int awaitTime, TimeUnit timeUnit) {
         this.awaitTime = awaitTime;
         this.timeUnit = timeUnit;
     }
@@ -36,7 +36,7 @@ public abstract class ServiceThread implements Runnable {
     }
 
     public void start() {
-        this.thread = new Thread(this, threadName());
+        Thread thread = new Thread(this, threadName());
         thread.setDaemon(true);
         thread.start();
     }
@@ -52,10 +52,7 @@ public abstract class ServiceThread implements Runnable {
     }
 
     private void reset() {
-        int count = (int) latch.getCount();
-        if (count == 1) {
-            latch.countDown();
-        }
+        // need implement
     }
 
     public void stop() {
