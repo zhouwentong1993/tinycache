@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * 性能测试
  */
-class LRUV3PerfTest {
+class NBLRUPerfTest {
 
     private static final int PRODUCER_COUNT = 8;
     private static final int CONSUMER_COUNT = 8;
@@ -30,7 +30,7 @@ class LRUV3PerfTest {
 
     private static final BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>();
 
-    private static final LRUV3<String, String> lru = new LRUV3<>(TOTAL_TEST_COUNT * 2, "v2");
+    private static final NBLRU<String, String> lru = new NBLRU<>(TOTAL_TEST_COUNT * 2, "v2");
 
     @Test
     void testProduceThenConsume() throws Exception {

@@ -1,46 +1,105 @@
 package com.wentong.lru;
 
+import java.util.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * LruCache实现，V1版本，线程安全
- * <p>
- * Created on Jul, 2020 by @author bobo
+ * 实现并发安全的 LRU cache
+ *
+ * @param <K>
+ * @param <V>
  */
 public class LRUV2<K, V> implements LRU<K, V> {
-    private int maxCapacity;
-    private Map<K, Node<K, V>> map;
-    private Node<K, V> head, tail;
 
-    private ReadWriteLock lock = new ReentrantReadWriteLock();
-    private Lock writeLock = lock.writeLock();
-    private Lock readLock = lock.readLock();
+    private final Map<K, Node<K, V>> map;
+    private int maxCapacity = 4096;
+    private Node<K, V> tail;
+    private Node<K, V> head;
 
-    private static class Node<K, V> {
-        private V value;
-        private K key;
-        private Node<K, V> next, prev;
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
 
-        public Node(K key, V value) {
-            this.key = key;
-            this.value = value;
+    static class Node<K, V> {
+        K k;
+        V v;
+
+        public Node(K k, V v) {
+            this.k = k;
+            this.v = v;
         }
 
-        @Override
-        public String toString() {
-            return value.toString();
+        Node<K, V> next;
+        Node<K, V> prev;
+    }
+
+    public LRUV2() {
+        this.map = new HashMap<>();
+    }
+
+    public LRUV2(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+        this.map = new HashMap<>();
+    }
+
+    @Override
+    public synchronized V get(K k) {
+        if (map.containsKey(k)) {
+            Node<K, V> node = map.get(k);
+            removeNode(node);
+            offerNode(node);
+            return node.v;
+        } else {
+            return null;
         }
     }
 
-    // 从双向链表中移除一个节点
-    private void removeNode(Node<K, V> node) {
-        if (node == null) return;
+    @Override
+    public synchronized void put(K k, V v) {
+        if (map.containsKey(k)) {
+            Node<K, V> node = map.get(k);
+            node.v = v;
+            removeNode(node);
+            offerNode(node);
+        } else {
+            Node<K, V> node = new Node<>(k, v);
+            if (size() == maxCapacity) {
+                removeTail();
+            }
+            offerNode(node);
+            map.put(k, node);
+        }
+    }
 
+    @Override
+    public synchronized int size() {
+        return map.size();
+    }
+
+    @Override
+    public V remove(K k) {
+        Node<K, V> node = map.remove(k);
+        removeNode(node);
+        return node.v;
+    }
+
+    public synchronized List<K> keyOrders() {
+        if (head == null) {
+            return Collections.emptyList();
+        }
+        Node<K, V> tmp = head;
+        List<K> keys = new ArrayList<>(size());
+        while (tmp != null) {
+            keys.add(tmp.k);
+            tmp = tmp.next;
+        }
+        return keys;
+    }
+
+    private void removeNode(Node<K, V> node) {
+        if (node == null) {
+            return;
+        }
         if (node.prev != null) {
             node.prev.next = node.next;
         } else {
@@ -52,68 +111,33 @@ public class LRUV2<K, V> implements LRU<K, V> {
         } else {
             tail = node.prev;
         }
+
     }
 
-    // 向双向链表的尾部添加一个节点
     private void offerNode(Node<K, V> node) {
-        if (node == null) return;
-
-        if (head == null) {
-            head = tail = node;
+        if (node == head) {
+            return;
+        }
+        if (node == tail) {
+            removeTail();
+        }
+        if (head != null) {
+            head.prev = node;
+            node.next = head;
+            head = node;
         } else {
-            tail.next = node;
-            node.prev = tail;
             node.next = null;
+            node.prev = null;
+            head = node;
             tail = node;
         }
     }
 
-    public LRUV2(final int maxCapacity) {
-        this.maxCapacity = maxCapacity;
-        map = new HashMap<>();
-    }
-
-    public void put(K key, V value) {
-        writeLock.lock();
-        try {
-            if (map.containsKey(key)) {
-                Node<K, V> node = map.get(key);
-                node.value = value;
-                removeNode(node);
-                offerNode(node);
-            } else {
-                if (map.size() >= maxCapacity) {
-                    map.remove(head.key);
-                    removeNode(head);
-                }
-                Node<K, V> node = new Node<>(key, value);
-                offerNode(node);
-                map.put(key, node);
-            }
-        } finally {
-            writeLock.unlock();
+    private void removeTail() {
+        if (tail.prev != null) {
+            tail.prev.next = null;
+            tail = tail.prev;
         }
     }
 
-    public V get(K key) {
-        writeLock.lock();
-        try {
-            Node<K, V> node = map.get(key);
-            if (node == null) return null;
-            removeNode(node);
-            offerNode(node);
-            return node.value;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    public int size() {
-        readLock.lock();
-        try {
-            return map.size();
-        } finally {
-            readLock.unlock();
-        }
-    }
 }

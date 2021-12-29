@@ -10,21 +10,21 @@ class LRUV2Test {
 
     @Test
     void testGetWhenNoElement() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         String a = lru.get("a");
         assertNull(a);
     }
 
     @Test
     void testPut() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         lru.put("a", "a");
         assertEquals("a", lru.get("a"));
     }
 
     @Test
     void testSameElementPut() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         lru.put("a", "a");
         lru.put("a", "b");
         assertEquals(1, lru.size());
@@ -33,7 +33,7 @@ class LRUV2Test {
 
     @Test
     void testKeysOrder() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         lru.put("a", "a");
         lru.put("b", "b");
         lru.put("a", "b");
@@ -43,7 +43,7 @@ class LRUV2Test {
 
     @Test
     void testNoNeedEvict() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
         lru.put("b", "b");
@@ -59,7 +59,7 @@ class LRUV2Test {
 
     @Test
     void testNeedEvict() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
         lru.put("b", "b");
@@ -77,7 +77,7 @@ class LRUV2Test {
 
     @Test
     void testRemoveLastNode() {
-        LRUV21<String, String> lru = new LRUV21<>();
+        LRUV2<String, String> lru = new LRUV2<>();
         lru.setMaxCapacity(5);
         lru.put("a", "a");
         lru.put("b", "b");
@@ -87,6 +87,21 @@ class LRUV2Test {
         lru.put("b", "b");
         List<String> orders = lru.keyOrders();
         assertEquals("b", orders.get(0));
+    }
+
+    @Test
+    void testRemove() {
+        LRUV2<String, String> lru = new LRUV2<>();
+        lru.put("a", "a");
+        lru.put("b", "b");
+        lru.put("c", "c");
+        lru.put("d", "d");
+        lru.remove("b");
+        List<String> orders = lru.keyOrders();
+        assertFalse(orders.contains("b"));
+        assertEquals("d", orders.get(0));
+        assertEquals("c", orders.get(1));
+        assertEquals("a", orders.get(2));
     }
 
 

@@ -129,7 +129,7 @@ class LRUV2PerfTest {
 
     private static final BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>();
 
-    private static final LRUV21<String, String> lru = new LRUV21<>(TOTAL_TEST_COUNT * 2);
+    private static final LRUV2<String, String> lru = new LRUV2<>(TOTAL_TEST_COUNT * 2);
 
 
     static class Producer implements Runnable {

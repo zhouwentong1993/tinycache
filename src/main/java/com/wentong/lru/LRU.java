@@ -8,4 +8,6 @@ public interface LRU<K, V> {
 
     int size();
 
+    V remove(K k);
+
 }
