@@ -88,6 +88,16 @@ class HugeCacheTest {
     }
 
     @Test
+    void thresholdReachedThenCleanUp() {
+        cache = new HugeCache<>(new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 18));
+        cache.put("k1", "hello world".getBytes(StandardCharsets.UTF_8));
+        cache.put("k2", "hello".getBytes(StandardCharsets.UTF_8));
+        cache.delete("k1");
+        cache.getCleanThread().runNow();
+        // can't assert.because can't reach pointer object.
+    }
+
+    @Test
     void close() {
     }
 }

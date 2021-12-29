@@ -4,6 +4,7 @@ import com.wentong.hugecache.Pointer;
 import com.wentong.hugecache.StorageMode;
 import com.wentong.util.PathUtil;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,6 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BlockManagerTest {
+
+    BlockManager manager;
+
+    @BeforeEach
+    void setup() {
+        this.manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
+    }
 
 
     @Test
@@ -27,8 +35,8 @@ class BlockManagerTest {
     @Test
     void testPutWhenDataFull() {
         long start = System.currentTimeMillis();
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
-        manager.stopMonitor();
+
+        manager.getMonitorThread().stop();
         Pointer pointer1 = manager.put("hh".getBytes(StandardCharsets.UTF_8));
         Pointer pointer2 = manager.put("hello world".getBytes(StandardCharsets.UTF_8));
         // 扩容需要 3s，从阻塞队列等 3s。
@@ -59,7 +67,7 @@ class BlockManagerTest {
 
     @Test
     void testTwoThreadInvokePutWhenFull() throws Exception {
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
+
         final Pointer[] ps = {null, null, null};
         Thread t1 = new Thread(() -> {
             ps[0] = manager.put("hh".getBytes(StandardCharsets.UTF_8));
@@ -82,7 +90,7 @@ class BlockManagerTest {
 
     @Test
     void retrieve() {
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
+
         Pointer pointer = manager.put("hello".getBytes(StandardCharsets.UTF_8));
         byte[] retrieve = manager.retrieve(pointer);
         assertEquals("hello", new String(retrieve));
@@ -90,7 +98,7 @@ class BlockManagerTest {
 
     @Test
     void remove() {
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
+
         Pointer pointer = manager.put("hello".getBytes(StandardCharsets.UTF_8));
         byte[] remove = manager.remove(pointer);
         assertEquals("hello", new String(remove));
@@ -98,7 +106,7 @@ class BlockManagerTest {
 
     @Test
     void update() {
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
+
         Pointer pointer = manager.put("hello".getBytes(StandardCharsets.UTF_8));
         Pointer updatePointer = manager.update(pointer, "olleh".getBytes(StandardCharsets.UTF_8));
         assertEquals(0, updatePointer.getOffset());
@@ -107,14 +115,19 @@ class BlockManagerTest {
 
     @Test
     void dirtyPage() {
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
         assertEquals(0, manager.dirtyPage());
     }
 
     @Test
     void freePage() {
-        BlockManager manager = new BlockManager(1, StorageMode.FILE_CHANNEL, PathUtil.getSystemDefaultPath() + "/data/filechannel", 12);
         assertEquals(12, manager.freePage());
+    }
+
+    @Test
+    void monitorThread() throws Exception {
+        manager.getMonitorThread().runNow();
+        TimeUnit.MILLISECONDS.sleep(10);
+        assertEquals(1, manager.queueSize());
     }
 
     @AfterEach

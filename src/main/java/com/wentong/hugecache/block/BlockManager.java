@@ -22,7 +22,7 @@ public class BlockManager implements Block {
     private final StorageMode mode;
     private final int capacity;
     private static final int MIN_BLOCK = 5;
-    private final MonitorThread thread;
+    private final MonitorThread monitorThread;
 
     public BlockManager(int initialization, StorageMode mode, String dir, int capacity) {
         this.dir = dir;
@@ -39,8 +39,8 @@ public class BlockManager implements Block {
             queue.add(block);
         }
         currentBlock = queue.poll();
-        thread = new MonitorThread(10, TimeUnit.SECONDS);
-        thread.start();
+        monitorThread = new MonitorThread(10, TimeUnit.SECONDS);
+        monitorThread.start();
     }
 
     @SneakyThrows
@@ -120,12 +120,25 @@ public class BlockManager implements Block {
         }
     }
 
+    public MonitorThread getMonitorThread() {
+        return monitorThread;
+    }
+
+    public int queueSize() {
+        return this.queue.size();
+    }
+
     public Storage getCurrentStorage() {
         return this.currentBlock.getStorage();
     }
 
     public void copyStorage() {
-        this.currentBlock = new BlockStorage(mode, dir, capacity);
+        BlockStorage storage = this.queue.poll();
+        if (storage != null) {
+            this.currentBlock = storage;
+        } else {
+            this.currentBlock = new BlockStorage(mode, dir, capacity);
+        }
     }
 
     class MonitorThread extends ServiceThread {
@@ -145,7 +158,7 @@ public class BlockManager implements Block {
             try {
                 if (BlockManager.this.queue.size() < MIN_BLOCK) {
                     BlockStorage newBlock = new BlockStorage(mode, dir, capacity);
-                    queue.add(newBlock);
+                    BlockManager.this.queue.add(newBlock);
                 }
             } finally {
                 writeLock.unlock();
@@ -157,9 +170,4 @@ public class BlockManager implements Block {
             return MonitorThread.class.getName();
         }
     }
-
-    public void stopMonitor() {
-        this.thread.stop();
-    }
-
 }
