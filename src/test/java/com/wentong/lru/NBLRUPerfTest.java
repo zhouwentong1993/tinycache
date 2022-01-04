@@ -30,7 +30,7 @@ class NBLRUPerfTest {
 
     private static final BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>();
 
-    private static final NBLRU<String, String> lru = new NBLRU<>(TOTAL_TEST_COUNT * 2, "v2");
+    private static final NBLRU<String, String> lru = new NBLRU<>(TOTAL_TEST_COUNT * 2, null);
 
     @Test
     void testProduceThenConsume() throws Exception {

@@ -1,5 +1,7 @@
 package com.wentong.lru;
 
+import com.wentong.listener.EvictListener;
+
 import java.util.*;
 
 
@@ -15,6 +17,7 @@ public class LRUV2<K, V> implements LRU<K, V> {
     private int maxCapacity = 4096;
     private Node<K, V> tail;
     private Node<K, V> head;
+    private EvictListener<K,V> listener;
 
     public void setMaxCapacity(int maxCapacity) {
         this.maxCapacity = maxCapacity;
@@ -40,6 +43,12 @@ public class LRUV2<K, V> implements LRU<K, V> {
     public LRUV2(int maxCapacity) {
         this.maxCapacity = maxCapacity;
         this.map = new HashMap<>();
+    }
+
+    public LRUV2(int maxCapacity, EvictListener<K, V> listener) {
+        this.maxCapacity = maxCapacity;
+        this.map = new HashMap<>();
+        this.listener = listener;
     }
 
     @Override
@@ -134,9 +143,13 @@ public class LRUV2<K, V> implements LRU<K, V> {
     }
 
     private void removeTail() {
+        Node<K,V> evictNode = tail;
         if (tail.prev != null) {
             tail.prev.next = null;
             tail = tail.prev;
+        }
+        if (listener != null) {
+            listener.onEvict(evictNode.k, evictNode.v);
         }
     }
 

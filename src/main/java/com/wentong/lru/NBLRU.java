@@ -1,6 +1,6 @@
 package com.wentong.lru;
 
-import java.util.Objects;
+import com.wentong.listener.EvictListener;
 
 /**
  * 实现并发安全且高并发的 LRU cache
@@ -10,22 +10,12 @@ public class NBLRU<K, V> {
     private final LRU<K, V>[] segments;
     private final int concurrency;
 
-    public NBLRU(int maxCapacity) {
+    public NBLRU(int maxCapacity, EvictListener<K, V> listener) {
         int nCPUS = Runtime.getRuntime().availableProcessors();
         this.concurrency = Math.max(nCPUS, 2);
         segments = new LRUV2[concurrency];
         for (int i = 0; i < concurrency; i++) {
-            segments[i] = new LRUV2<>(maxCapacity / concurrency);
-        }
-    }
-
-    public NBLRU(int maxCapacity, String className) {
-        Objects.requireNonNull(className);
-        int nCPUS = Runtime.getRuntime().availableProcessors();
-        this.concurrency = Math.max(nCPUS, 2);
-        segments = new LRUV2[concurrency];
-        for (int i = 0; i < concurrency; i++) {
-            segments[i] = new LRUV2<>(maxCapacity / concurrency);
+            segments[i] = new LRUV2<>(maxCapacity / concurrency, listener);
         }
     }
 

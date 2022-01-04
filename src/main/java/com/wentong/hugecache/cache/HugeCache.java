@@ -3,6 +3,7 @@ package com.wentong.hugecache.cache;
 import com.wentong.hugecache.Pointer;
 import com.wentong.hugecache.ServiceThread;
 import com.wentong.hugecache.Statistics;
+import com.wentong.hugecache.StorageMode;
 import com.wentong.hugecache.block.BlockManager;
 import com.wentong.hugecache.storage.Storage;
 
@@ -24,6 +25,10 @@ public class HugeCache<K> implements Cache<K> {
         cleanThread.start();
         this.ttlThread = new TTLThread(500, TimeUnit.MILLISECONDS);
         ttlThread.start();
+    }
+
+    public HugeCache(int initialization, StorageMode mode, String dir, int capacity) {
+        this(new BlockManager(initialization, mode, dir, capacity));
     }
 
     private final Map<K, Pointer> kPointerMap = new ConcurrentHashMap<>();
